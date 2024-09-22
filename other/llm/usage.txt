@@ -1,0 +1,147 @@
+LLM: ChatGPT-4.
+Date: 22 September 2024
+
+
+
+############################### CHAT 1 ###############################
+
+User:
+ibrary(opendatatoronto)
+library(tidyverse)
+
+# [...UPDATE THIS...]
+
+#### Download data ####
+# [...ADD CODE HERE TO DOWNLOAD...]
+
+# get package
+package <- show_package("b68cb71b-44a7-4394-97e2-5d2f41462a5d")
+package
+
+#### Save data ####
+# [...UPDATE THIS...]
+# change the_raw_data to whatever name you assigned when you downloaded it.
+# write_csv(the_raw_data, "inputs/data/raw_data.csv")
+    title                id               topics          civic_issues      
+ Length:1           Length:1           Length:1           Length:1          
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+  publisher           excerpt          dataset_category   num_resources
+ Length:1           Length:1           Length:1           Min.   :13   
+ Class :character   Class :character   Class :character   1st Qu.:13   
+ Mode  :character   Mode  :character   Mode  :character   Median :13   
+                                                          Mean   :13   
+                                                          3rd Qu.:13   
+                                                          Max.   :13   
+   formats          refresh_rate       last_refreshed      
+ Length:1           Length:1           Min.   :2024-09-13  
+ Class :character   Class :character   1st Qu.:2024-09-13  
+ Mode  :character   Mode  :character   Median :2024-09-13  
+                                       Mean   :2024-09-13  
+                                       3rd Qu.:2024-09-13  
+                                       Max.   :2024-09-13  
+
+
+How can I make csv out of this data
+
+ChatGPT: 
+To download and save data from the opendatatoronto package, you need to follow these steps:
+
+First, retrieve the package information and resources.
+Then, select the specific resource you're interested in.
+Finally, download the data and save it as a CSV file.
+Here's how you can update your code:
+
+r
+Copy code
+library(opendatatoronto)
+library(tidyverse)
+
+#### Download data ####
+
+# Get package information using the package ID
+package <- show_package("b68cb71b-44a7-4394-97e2-5d2f41462a5d")
+
+# Get all resources for this package
+resources <- list_package_resources(package)
+
+# View the available resources
+resources
+
+# Select the specific resource you want to download (for example, the first resource)
+resource_id <- resources$id[1]  # Assuming you want the first resource, change the index as needed
+
+# Download the resource
+the_raw_data <- get_resource(resource_id)
+
+#### Save data ####
+# Save the downloaded data as a CSV file
+write_csv(the_raw_data, "inputs/data/raw_data.csv")
+Explanation:
+show_package("b68cb71b-44a7-4394-97e2-5d2f41462a5d"): This fetches the package details using the specified package ID.
+list_package_resources(package): This lists all available resources in the package.
+get_resource(resource_id): Downloads the specific resource you want using the resource ID.
+write_csv(the_raw_data, "inputs/data/raw_data.csv"): This saves the downloaded data as a CSV file in the specified path.
+Make sure to adjust the index or resource ID depending on which dataset you want to download from the list of available resources.
+
+User:
+this is resources. I want to get the 2024 data
+
+ name                              id                     format last_modified
+   <chr>                             <chr>                  <chr>  <date>       
+ 1 "ttc-streetcar-delay-data-readme" 0fe61851-c67b-49bc-8c… XLSX   2022-04-05   
+ 2 "ttc-streetcar-delay-data-2014"   09c9096f-b1bb-47fa-b2… XLSX   2022-04-05   
+ 3 "ttc-streetcar-delay-data-2015"   1ca48483-80b3-473b-9b… XLSX   2022-04-05   
+ 4 "ttc-streetcar-delay-data-2016"   62714aea-ce26-4aac-9e… XLSX   2022-04-05   
+ 5 "ttc-streetcar-delay-data-2017"   a6a730a7-25d1-4e77-98… XLSX   2022-04-05   
+ 6 "ttc-streetcar-delay-data-2018"   75bae9cb-b5ec-483e-b3… XLSX   2022-04-05   
+ 7 "ttc-streetcar-delay-data-2019"   437a5889-2bc9-4bd3-95… XLSX   2022-04-05   
+ 8 "ttc-streetcar-delay-data-2020\t" 71b8b735-8a89-45a9-af… XLSX   2022-04-12   
+ 9 "ttc-streetcar-delay-data-2021"   ecc4f0a8-25e6-40d8-ae… XLSX   2022-04-06   
+10 "ttc-streetcar-delay-data-2020"   082d481b-f94f-4dee-9a… XLSX   2022-04-05   
+11 "ttc-streetcar-delay-data-2022"   28547222-35fe-48b6-ac… XLSX   2023-01-23   
+12 "ttc-streetcar-delay-data-2023"   472d838d-e41a-4616-a1… XLSX   2024-01-18   
+13 "ttc-streetcar-delay-data-2024"   5f527714-2284-437b-95… XLSX   2024-09-13
+
+ChatGPT:
+
+Since you want to download the 2024 data, you'll need to extract it using the corresponding resource ID. Here’s how you can do that:
+
+r
+Copy code
+library(opendatatoronto)
+library(tidyverse)
+
+#### Download data ####
+
+# Get package information using the package ID
+package <- show_package("b68cb71b-44a7-4394-97e2-5d2f41462a5d")
+
+# Get all resources for this package
+resources <- list_package_resources(package)
+
+# Select the specific resource for 2024 data
+resource_2024_id <- resources %>% 
+  filter(name == "ttc-streetcar-delay-data-2024") %>% 
+  pull(id)
+
+# Download the 2024 resource
+the_raw_data_2024 <- get_resource(resource_2024_id)
+
+#### Save data ####
+# Save the downloaded 2024 data as a CSV file
+write_csv(the_raw_data_2024, "inputs/data/ttc_streetcar_delay_data_2024.csv")
+Explanation:
+Filter the resource for the 2024 data: The resource with the name "ttc-streetcar-delay-data-2024" is selected using filter().
+get_resource(resource_2024_id): Downloads the 2024 data based on its resource ID.
+write_csv(the_raw_data_2024, "inputs/data/ttc_streetcar_delay_data_2024.csv"): Saves the downloaded data as a CSV file.
+This code will download the 2024 TTC streetcar delay data and save it to your specified location.
+User
+Can you make a generic fun background rectangular image with the only text being "STA302"
+
+
+
+############################### CHAT 2 ###############################
