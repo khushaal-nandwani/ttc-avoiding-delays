@@ -2,26 +2,20 @@
 
 ## Overview
 
-This repo provides students with a foundation for their own projects associated with *Telling Stories with Data*. You do not need every aspect for every paper and you should delete aspects that you do not need.
+This repository contains the analysis and supporting materials for the paper "Avoiding Delays in TTC Streetcar". The project aims to explore patterns in streetcar delays on the Toronto Transit Commission (TTC) network by analyzing various factors such as time, direction, streetcar line, and day of the week. By leveraging data from Open Data Toronto, this analysis seeks to offer insights into when and where delays are most likely to occur, helping commuters make more informed travel decisions and assisting transit planners in identifying areas for improvement.
+
+The analysis was performed using R and includes data cleaning, visualization, and statistical summaries. The results are discussed in the accompanying paper, which provides a deeper understanding of the delay patterns and suggests potential strategies for both riders and transit operators to mitigate the impact of delays.
+
+In this repository, you will find the raw and cleaned data, R scripts used for analysis, and the final report generated using Quarto.
+
 
 
 ## File Structure
 
 The repo is structured as:
 
--   `data/raw_data` contains the raw data as obtained from X.
+-   `data/raw_data` contains the raw data as obtained from OpenDataToronto.
 -   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `model` contains fitted models. 
--   `other` contains relevant literature, details about LLM chat interactions, and sketches.
+-   `other` contains relevant LLM chat interactions
 -   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
 -   `scripts` contains the R scripts used to simulate, download and clean data.
-
-
-## Statement on LLM usage
-
-Aspects of the code were written with the help of the auto-complete tool, Codriver. The abstract and introduction were written with the help of ChatHorse and the entire chat history is available in inputs/llms/usage.txt.
-
-## Some checks
-- [ ] Remove files that you're not using
-- [ ] Update comments in R scripts
-- [ ] Remove this checklist
