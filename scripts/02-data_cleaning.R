@@ -11,34 +11,46 @@
 library(tidyverse)
 
 #### Clean data ####
-raw_data <- read_csv("inputs/data/plane_data.csv")
+raw_data <- read_csv("data/raw_data/ttc-resource-2024.csv")
 
-cleaned_data <-
-  raw_data |>
-  janitor::clean_names() |>
-  select(wing_width_mm, wing_length_mm, flying_time_sec_first_timer) |>
-  filter(wing_width_mm != "caw") |>
-  mutate(
-    flying_time_sec_first_timer = if_else(flying_time_sec_first_timer == "1,35",
-                                   "1.35",
-                                   flying_time_sec_first_timer)
-  ) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "490",
-                                 "49",
-                                 wing_width_mm)) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "6",
-                                 "60",
-                                 wing_width_mm)) |>
-  mutate(
-    wing_width_mm = as.numeric(wing_width_mm),
-    wing_length_mm = as.numeric(wing_length_mm),
-    flying_time_sec_first_timer = as.numeric(flying_time_sec_first_timer)
-  ) |>
-  rename(flying_time = flying_time_sec_first_timer,
-         width = wing_width_mm,
-         length = wing_length_mm
-         ) |> 
-  tidyr::drop_na()
+# Remove rows with missing values
+cleaned_data <- raw_data %>%
+    drop_na()
+  
+# Remove rows where bound is not one of W, E, N, S
+cleaned_data <- cleaned_data %>%
+    filter(Bound %in% c("W", "E", "N", "S"))
+
+# If Min Gap is smaller than Min Delay, drop the row
+cleaned_data <- cleaned_data %>%
+    filter(`Min Gap` >= `Min Delay`)
+
+# Remove records where the delay is greater than 240 minutes
+cleaned_data <- cleaned_data %>% 
+  filter(`Min Delay` <= 240)
+
+
+number_of_records_by_train_number <- cleaned_data %>% 
+  group_by(Line) %>%
+  summarize(train_record_count = n())
+
+# Since 45, 305, 312, 500 have less than 5 records each, we will drop them
+# we assume these were exceptions, might have ran due to emergency or some other reason
+# and can affect our data negatively potentially.
+# note this will be diffeerent for different data, be it 
+
+# we will program it
+
+unfrequent_trains <- cleaned_data %>% 
+  group_by(Line) %>%
+  summarize(train_record_count = n()) %>%
+  filter(train_record_count <= 150)
+
+unfreq_train_numbers <- unfrequent_trains[1] %>% pull(Line) %>% as.character()
+
+cleaned_data <- cleaned_data %>% 
+  filter(!Line %in% unfreq_train_numbers)
 
 #### Save data ####
-write_csv(cleaned_data, "outputs/data/analysis_data.csv")
+write_csv(cleaned_data, "data/analysis_data/ttc-resource-2024-cleaned.csv")
+

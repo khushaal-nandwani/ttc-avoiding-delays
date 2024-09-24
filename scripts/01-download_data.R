@@ -18,7 +18,15 @@ resource2024_id <- resources %>%
     filter(name == "ttc-streetcar-delay-data-2024") %>%
     pull(id)
 
+resource2023_id <- resources %>%
+    filter(name == "ttc-streetcar-delay-data-2023") %>%
+    pull(id)
+
 resource2024 <- get_resource(resource2024_id)
+resource2023 <- get_resource(resource2023_id)
+
+# combine the two datasets
+net_resource <- rbind(resource2023, resource2024)
 
 #### Save data ####
-write_csv(resource2024, "data/raw_data/ttc-resource-2024.csv")
+write_csv(net_resource, "data/raw_data/ttc-resource-2024.csv")
