@@ -1,12 +1,10 @@
 ---
-title: "Avoiding Delays In TTC Streetcar"
-subtitle: "selecting the right time and direction for your route"
+title: "Avoiding Delays on the TTC Streetcar: A Data-Driven Guide for Smarter Travel"
 author: 
   - Khushaal Nandwani
 thanks: "Code and data are available at: https://github.com/khushaal-nandwani/ttc-avoiding-delays"
 date: today
 date-format: long
-# TOOD write the abstract
 abstract: "This study examines delays in the Toronto Transit Commission (TTC) streetcar system, analyzing patterns based on time, day, direction, and streetcar line. The data reveals that eastbound and westbound streetcars face more delays, particularly during early mornings and late evenings. These findings can assist riders in planning routes to avoid delays and help improve transit scheduling."
 format: pdf
 number-sections: true
@@ -14,34 +12,28 @@ bibliography: references.bib
 ---
 
 
-
 # Introduction
 
-The Toronto Transit Commission (TTC) streetcar system is one of the city’s most iconic and frequently used public transit services. However, streetcar delays have been a persistent issue for riders, often resulting in inconvenience and unpredictable travel times. These delays can be influenced by various factors, including the time of day, the direction of travel, and external circumstances like construction or traffic congestion. Understanding the patterns and causes of these delays can help both daily commuters and occasional travelers optimize their routes and avoid unnecessary disruptions.
+The Toronto Transit Commission (TTC) streetcar system is one of the city’s most iconic and frequently used public transit services. However, streetcar delays have been a persistent issue for riders, often resulting in inconvenience and unpredictable travel times. There is a messaging service available, where one can SMS on a number and is informed about the next TTC arriving. However, this is not always accurate. These delays can be influenced by various factors, including the time of day, the direction of travel, and external circumstances like construction or traffic congestion. Understanding the patterns and causes of these delays can help both daily commuters and occasional travelers optimize their routes and avoid unnecessary disruptions.
 
-In this paper, we explore the patterns of delays in the TTC streetcar network by analyzing data provided by Open Data Toronto. Specifically, we aim to identify the times of day, days of the week, and streetcar lines that are most prone to delays. Additionally, we investigate the impact of streetcar direction on delay frequency and length, offering practical insights that can help riders make informed travel decisions.
+In this paper, we explore the patterns of delays in the TTC streetcar network by analyzing data provided by Open Data Toronto by @citeOpenDataToronto. Specifically, we aim to identify the times of day, days of the week, and streetcar lines that are most prone to delays. Additionally, we investigate the impact of streetcar direction on delay frequency and length, offering practical insights that can help riders make informed travel decisions.
 
 The remainder of this paper is structured as follows. First, we present the dataset and methodology used in our analysis. Next, we discuss the results, highlighting key trends in delays based on time, day, direction, and streetcar line. Finally, we provide recommendations for riders and policymakers, along with a discussion of limitations and potential areas for future research.
 
 
-
-
-<!-- You can and should cross-reference sections and sub-sections. We use @citeR and @rohan. -->
-
-<!-- The remainder of this paper is structured as follows. @sec-data.... -->
-The remainder of this paper is structured as follows. 
-
-
 # Data {#sec-data}
 
-The raw data used in this paper, was from Open Data Toronto and was extracted using [@citeOpenDataToronto]. The data consisted of details on the delays. This included the line number on which delay was caused, the time and day, location, reason, amount delayed and gap increased with respect to the next street car scheduled ahead. Apart from these, it also included the bound in which direction the streetcar is heading to and its vehicle number.
+## Source and Overview
+
+The raw data used in this paper, was from Open Data Toronto and was extracted using R programming language by @citeR and its packages including `tidyverse` by @citeTidyVerse, `deplyr` by @citeDplyr and `opendatatoronto` by @citeODTPackage. The data consisted of details on the delays. This included the line number on which delay was caused, the time and day, location, reason, amount delayed and gap increased with respect to the next street car scheduled ahead. Apart from these, it also included the bound in which direction the streetcar is heading to and its vehicle number. In @fig-raw, we show a sample of the raw data from Open Data Toronto.
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
-#| 
+#| label: fig-raw
+#| fig-cap: "Sample of the raw data from Open Data Toronto showing delays (minutes) in the TTC streetcar system"
 
 library(tidyverse)
 library(dplyr)
@@ -50,27 +42,29 @@ cleaned_data <- read_csv("../data/analysis_data/ttc-resource-2024-cleaned.csv")
 
 ggplot(data, aes(x = as.POSIXct(paste(Date, Time)), y = `Min Delay`)) +
   geom_point(aes(color = Incident), size = 3) +
-  labs(title = "Public Transportation Delays", x = "Date and Time", y = "Delay in Minutes") +
-  theme_minimal()
+  labs(x = "Date and Time", y = "Delay in Minutes") +
+  theme_classic()
 
 ```
 
-On observing the data, we also found there a bunch of anamloies where the delay goes over 1000 minutes. This can be either be error in logging, even if not we decided to exlude all observations having delays of greater than 240 minutes, because it is very unlikely that a streetcar would be delayed for more than 4 hours.
+## Cleaning Data
+The data required some basic cleaning, such as dropping empty values. In addition, certain line numbers had very few values. Line numbers with fewer than 100 records were dropped, as they were likely temporary or emergency lines. Despite this, we were still able to cover most of the lines mentioned on the TTC website @citeTTC. Records where the delay was greater than the gap were also removed, as it would not make sense for a streetcar to be delayed while the gap from the next streetcar was smaller.
 
-The data did require some cleaning, like dropping empty values. Some of the line numbers only had very few values. Such line numbers, where the number of records was less than 100, were dropped. We assume this because they were probably temporary or emergency lines. Doing this, we were still able to cover most of the lines as mentioned on TTC's website @citeTTC. Places where delay is greater than gap where also dropped, because it wouldn't make sense physically for a streetcar to be delayed while the gap form the next street car is lesser than that. 
+Upon reviewing the data, we also found several anomalies where the delay exceeded 1,000 minutes. This could either be an error in logging, or an extreme case. Regardless, I have decided to exclude all observations with delays greater than 300 minutes, as it is highly unlikely that a streetcar would be delayed for more than 5 hours on a regular day, and including such outliers could skew the overall analysis.
 
-<!-- TODO: cite the packages used in data analysis -->
 
 
 # Results
 
-The graphs below were created using R programming language @citeR and its packages including `tidyverse` @citeTidyVerse  packages. We observe that the average delay in East the highest while South being the lowest. In general, North and South directions have lower average delay than East and West direction. This theoretically makes sense because delays in streetcars are caused by traffic on the road, and since Toronto's nearby sub-urbs like Oshawa, Hamilton, Scarborough, Missisauga, Brampton etc require you to travel East and West making it more busy and hence more delayed.
+After thorough analysis, we observed that the average delay was highest for Eastbound streetcars, while Southbound streetcars had the shortest delays. Overall, streetcars traveling in the North and South directions experienced lower average delays compared to those traveling East and West, as illustrated in @fig-direction. This is consistent with expectations, as Toronto’s nearby suburbs, such as Oshawa, Hamilton, Scarborough, Mississauga, and Brampton, require East-West travel, making those routes busier and therefore more prone to delays. This information is also cross verififed when we find in @sec-linespecific that Line 501 and 506 have the highest average delays which is an East-West bound streetcar.
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
+#| label: fig-direction
+#| fig-cap: "Average delay by direction of TTC streetcars"
 
 
 directions <- c("N", "S", "E", "W")
@@ -88,7 +82,6 @@ ggplot(
     geom_line() +
     theme_classic() +
     labs(
-        title = "Average delay by direction",
         x = "Direction",
         y = "Average delay (minutes)"
     )
@@ -96,18 +89,20 @@ ggplot(
 
 ```
 
-When we look at the line numbers we find that 501 Line is most delayed while 503 is least average delayed. The shocking variations depending on the line numbers of streetcars makes it very useful for riders to gauge their decisions. Because, ofthen times riders have choice between picking street car numbers, when they are in the midddle of two or three. or if options are not too far apart. Google maps will always show the closest, and may not show the least delayed.
+When we examine the average delay of streetcars by line numbers in @fig-line, we find that the 501 line has the longest delays, while the 503 line has the shortest average delays. The significant variation in delays across different streetcar lines makes it valuable for riders to consider when making travel decisions. Often, riders have the option to choose between streetcar numbers when they are between two or three routes or if the stops are not too far apart. However, Google Maps typically displays the closest streetcar, not necessarily the one with the shortest delay.
 
 
-Note that bars have been filled with number of delays, this can be be either becaue the freuqency of streetcars on these lines is less or there are actually less chances of delay. Since, we have not been given the actual number of times the streetcars ran, we cannot show the adjusted value and ball parking using the frequenqcy might not be accurate. However, being award of this information can be useful. 
+Note that the bars have been filled based on the number of delays, which could be due either to a lower frequency of streetcars on these lines or to fewer chances of delays. Since we do not have the actual number of times the streetcars operated, we cannot present an adjusted value, and estimating based on frequency might not be entirely accurate. However, being aware of this limitation is still useful for interpreting the data.
 
-On average, Line 506 and 509 had to highest average delay legth, while 507 the lowest.
+On average, Line 506 and 509 had to highest average delay length, while 507 the lowest.
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
+#| label: fig-line
+#| fig-cap: "Average delay of streetcars by Line number along with the number of delays caused on each line"
 
 train_numbers <- unique(cleaned_data$Line)
 number_of_records_by_train_number <- cleaned_data %>% 
@@ -124,21 +119,22 @@ ggplot(
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   theme_classic() + 
   labs(
-    title = "Average delay of trains by Line number",
     x = "Line Number",
     y = "Average delay (minutes)",
     fill = "No. of Delays"
   )
 ```
 
-When we look at the time of the day. We see a spike at 4 AM in morning and 8 PM in the evening. This is probably because of the shift changes of the drivers. This is a very important information for the riders, because if they are planning to travel at these times, they can expect a delay.
+When we examine the delays by time of day in @fig-hour, we notice a spike at 4 AM and 8 PM. This is likely due to driver shift changes. This information is valuable for riders, as they can anticipate potential delays if traveling around these times.
 
-During the peak office hours, we see somewhat increase in delay but not much. This is probably because the streetcars are more frequent during these times.
+During peak office hours, there is a slight increase in delays, but not significantly. This is likely because streetcars run more frequently during these periods, helping to mitigate delays.
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
+#| label: fig-hour
+#| fig-cap: "Average delay by hour of the day"
 
 cleaned_data$Hour <- as.numeric(substr(cleaned_data$Time, 1, 2))
 
@@ -150,19 +146,43 @@ ggplot(avg_delay, aes(x = Hour, y = Average_Delay)) +
   geom_point(color='blue', size=3) +
   geom_line(color = "blue", size = 1) +  
   scale_x_continuous(breaks = 0:24) +         # Set x-axis to show 0 to 24
-  labs(title = "Average Delay by Hour", x = "Hour of Day", y = "Average Delay (Minutes)") +
-  theme_minimal()
+  labs(x = "Hour of Day", y = "Average Delay (Minutes)") +
+  theme_classic()
 ``` 
 
-When we look at the month of the year, we see an unexpected spike in the month of June. This is probably because of the construction work that happens in the city during the summer months. Also, summer time there are more events and in general people from different cities come to Toronto for events. This can cause more traffic and hence more delays.
-
-We can also look at the day of the week. 
+When we look at the month of the year and the average delay length in @fig-month, we see spikes in month of March, August, and November. Explaining these trends could be quite interesting. 
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
+#| label: fig-month
+#| fig-cap: "Average delay by month of the year"
+
+cleaned_data$Month <- as.numeric(substr(cleaned_data$Date, 6, 7))
+
+avg_delay_by_month <- cleaned_data %>% 
+  group_by(Month) %>%
+  summarize(Average_Delay = mean(`Min Delay`))
+
+ggplot(avg_delay_by_month, aes(x = Month, y = Average_Delay)) +
+  geom_point(color='blue', size=3) +
+  geom_line(color = "blue", size = 1) +  
+  scale_x_continuous(breaks = 1:12) +        
+  labs(title = "Average Delay by Month", x = "Month of Year", y = "Average Delay (Minutes)") +
+  theme_classic()
+```
+
+We can also examine the average delay length by day of the week in @fig-week. Surprisingly, there isn't a clear trend across different days. This could be because the primary causes of delays are not traffic-related but due to other factors. Upon investigating the reasons for delays in @fig-reasons, this becomes clearer. The most common reasons for delays are "Diversion," "Overhead," "Collision," and "Held By," none of which are directly related to traffic. Interestingly, "General Delay" is one of the least common reasons, as shown in the graph below.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-week
+#| fig-cap: "Average delay (minutes) by day of the week in TTC Streetcars"
 
 avg_delay_by_day <- cleaned_data %>%
     group_by(Day) %>%
@@ -170,17 +190,19 @@ avg_delay_by_day <- cleaned_data %>%
 
 ggplot(avg_delay_by_day, aes(x = Day, y = avg_delay)) +
     geom_bar(stat = "identity", fill = "lightblue") +
-    labs(title = "Average Delay by Day of the Week", x = "Day", y = "Average Delay (Minutes)") +
-    theme_minimal()
+    labs( x = "Day", y = "Average Delay (Minutes)") +
+    theme_classic()
 ```
 
 
-Surprisingly, there is not much trend in the day of the week. This can be due to the cause of delays not being the traffic but some other reasons. On exploring the reasons, it kind of makes sense. The most commmon reason for delay is "Diversion", "Overhead", "Collision" and "Held By". These are not traffic related reasons. While "General Delay" is the one of the least common reasons. As shown in the graph below.
+
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
+#| label: fig-reasons
+#| fig-cap: "Reasons for delays in TTC Streetcars"
 
 avg_delay_by_incident <- cleaned_data %>%
     group_by(Incident) %>%
@@ -189,19 +211,17 @@ avg_delay_by_incident <- cleaned_data %>%
 ggplot(avg_delay_by_incident, aes(x = reorder(Incident, avg_delay), y = avg_delay)) +
     geom_bar(stat = "identity", fill = "lightcoral") +
     coord_flip() + # Flip for better readability
-    labs(title = "Average Delay by Incident Type", x = "Incident Type", y = "Average Delay (Minutes)") +
-    theme_minimal()
+    labs( x = "Incident Type", y = "Average Delay (Minutes)") +
+    theme_classic()
 ```
 
 # Discussion
 
-
-
 The findings from our analysis provide significant insights into the patterns of delays in the TTC streetcar system. These insights can be broken down into a few key areas: the influence of direction, time of day, day of the week, and specific streetcar lines. In this discussion, we will interpret these results in the context of practical use for daily commuters, transit planners, and city infrastructure management.
 
-## Directional Influence on Delays
+## Directional Influence on Delays 
 
-The analysis reveals that streetcars traveling in the eastbound and westbound directions experience more frequent and longer delays compared to those traveling north and south. This could be due to the geographical layout of Toronto, where many busy corridors, such as Queen Street and King Street, run in the east-west direction, connecting major suburbs and districts. These routes are more prone to traffic congestion, roadwork, and external events like construction or parades. Conversely, north-south routes may encounter less traffic due to fewer major cross-city connections in those directions.
+The analysis reveals that streetcars traveling in the eastbound and westbound directions experience longer delays compared to those traveling north and south. This could be due to the geographical layout of Toronto, where many busy corridors, such as Queen Street and King Street, run in the east-west direction, connecting major suburbs and districts. These routes are more prone to traffic congestion, roadwork, and external events like construction or parades. And, these routes do not have dedicated lane for streetcars like Spadina does which is a North South Bound streetcar. Conversely, north-south routes may encounter less traffic due to fewer major cross-city connections in those directions.
 
 From a commuter’s perspective, understanding this directional influence can help optimize travel plans. For instance, if a commuter has a choice between an eastbound or northbound route, the latter may offer a more reliable and punctual journey during peak hours.
 
@@ -217,7 +237,7 @@ Interestingly, the analysis did not reveal a significant trend in delays across 
 
 For city planners, the summer spike in delays highlights the importance of coordinating roadwork schedules and traffic management systems to minimize the impact on transit. For TTC users, planning trips around these periods, or choosing alternate routes, could help avoid unnecessary delays.
 
-## Streetcar Line-Specific Delays
+## Streetcar Line-Specific Delays {#sec-linespecific}
 
 Certain streetcar lines, such as the 501 Queen and 506 Carlton, exhibited significantly higher delays compared to others. This disparity could be attributed to various factors, including the length of the route, the traffic conditions in areas serviced by these lines, and operational challenges unique to each line.
 
@@ -226,6 +246,9 @@ Commuters familiar with the TTC may benefit from being selective about which str
 # Limitations and Further Research
 
 While this study provides valuable insights into TTC streetcar delays, there are a few limitations that must be acknowledged. First, the dataset does not include the total number of streetcars that ran during the period, which prevents us from calculating an adjusted delay frequency relative to the service volume. Furthermore, the analysis does not account for external factors such as weather conditions, which may also influence delay patterns.
+
+In addition, datasets for other TTC transportation modes, such as subways and buses, are also available. Cross-comparing these datasets could provide a more comprehensive view of transit delays, helping commuters make more informed decisions about their travel options. Since TTC tickets are valid for two hours regardless of the transportation type used, this analysis could significantly improve commuters' ability to choose the optimal combination of public transport, leading to a more efficient travel experience.
+
 
 Future research could expand on this analysis by integrating additional datasets, such as weather reports, traffic data, or real-time transit schedules. A more granular understanding of how these external factors interact with the internal workings of the TTC system could help in developing more targeted solutions to reduce delays.
 

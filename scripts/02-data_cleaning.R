@@ -27,7 +27,7 @@ cleaned_data <- cleaned_data %>%
 
 # Remove records where the delay is greater than 240 minutes
 cleaned_data <- cleaned_data %>% 
-  filter(`Min Delay` <= 240)
+  filter(`Min Delay` <= 300)
 
 
 number_of_records_by_train_number <- cleaned_data %>% 
