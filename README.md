@@ -1,4 +1,4 @@
-# Avoiding Delays in TTC Streetcar
+# Avoiding Delays on the TTC Streetcar: A Data-Driven Guide for Smarter Travel
 
 ## Overview
 
@@ -8,7 +8,8 @@ The analysis was performed using R and includes data cleaning, visualization, an
 
 In this repository, you will find the raw and cleaned data, R scripts used for analysis, and the final report generated using Quarto.
 
-
+## LLM Usage
+Certain code and text was written using the help of ChatGPT 4o. Its usage can be tracked under [usage.txt](other/llm/usage.txt)
 
 ## File Structure
 
@@ -16,6 +17,7 @@ The repo is structured as:
 
 -   `data/raw_data` contains the raw data as obtained from OpenDataToronto.
 -   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `other` contains relevant LLM chat interactions
+-   `other/llm` contains relevant LLM chat interactions
+-   `other/sketches` contains sketches used in the paper.
 -   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
 -   `scripts` contains the R scripts used to simulate, download and clean data.
